@@ -1,5 +1,5 @@
 (ns alphabet-cipher.coder
-   (:require [clojure.string :as string]))
+  (:require [clojure.string :as string]))
 
 (def alphabet "abcdefghijklmnopqrstuvwxyz")
 
@@ -18,37 +18,33 @@
 
 (defn decode-single-char [column-char row-char]
   (nth alphabet
-    (string/index-of
-      (get grid column-char) row-char)))
-
-(defn take-cycle [benchmark word]
-  (take (count benchmark) (cycle word)))
+       (string/index-of
+         (get grid column-char) row-char)))
 
 (defn encode [keyword message]
-  (string/join
+  (apply str
     (map encode-single-char
-      (vec (take (count message) (cycle keyword)))
-      (vec message))))
+         (cycle keyword)
+         message)))
 
-(defn decode [keyword encrypted-message] (string/join
-  (map decode-single-char
-    (vec (take-cycle encrypted-message keyword))
-    (vec encrypted-message))))
+(defn decode [keyword encrypted-message]
+  (apply str
+    (map decode-single-char
+         (cycle keyword)
+         encrypted-message)))
 
-(defn decipher-single-char [message-char encrypted-char] (
-  nth (
-    filter
-      (fn [key] (= (string/index-of (get grid key) encrypted-char) (idx message-char)))
-      (keys grid)) 0))
+(defn decipher-single-char [message-char encrypted-char]
+  (first (filter
+           (fn [key] (= (string/index-of (get grid key) encrypted-char) (idx message-char)))
+           (keys grid))))
 
-(defn cycled-keyword [message encrypted-message] (
-  string/join (
-    map decipher-single-char (vec message) (vec encrypted-message))))
+(defn cycled-keyword [message encrypted-message]
+  (apply str (map decipher-single-char (vec message) (vec encrypted-message))))
 
 (defn decipher [message encrypted-message]
   (let [cycled (cycled-keyword message encrypted-message)]
-  (subs cycled 0 (nth 
-    (filter
-      (fn [x] (= cycled (string/join (take (count cycled) (cycle (subs cycled 0 x))))))
-      (range (count cycled))) 
-        0))))
+    (subs cycled 0 (nth
+                     (filter
+                       (fn [x] (= cycled (string/join (take (count cycled) (cycle (subs cycled 0 x))))))
+                       (range (count cycled)))
+                     0))))
