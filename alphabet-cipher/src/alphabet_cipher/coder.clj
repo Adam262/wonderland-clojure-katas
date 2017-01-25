@@ -41,10 +41,9 @@
 (defn cycled-keyword [message encrypted-message]
   (apply str (map decipher-single-char (vec message) (vec encrypted-message))))
 
-(defn decipher [message encrypted-message]
+(defn decipher [encrypted-message message]
   (let [cycled (cycled-keyword message encrypted-message)]
-    (subs cycled 0 (nth
+    (subs cycled 0 (first
                      (filter
                        (fn [x] (= cycled (string/join (take (count cycled) (cycle (subs cycled 0 x))))))
-                       (range (count cycled)))
-                     0))))
+                       (range (count cycled)))))))
